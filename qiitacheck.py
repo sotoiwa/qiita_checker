@@ -242,7 +242,7 @@ def main():
         # dockerで実行している場合はファイルの出力先を/tmpにする
         try:
             os.environ['IS_DOCKER']
-            filepath = os.path.join('/tmp', 'filename')
+            filepath = os.path.join('/tmp', filename)
         except KeyError:
             filepath = filename
     else:
