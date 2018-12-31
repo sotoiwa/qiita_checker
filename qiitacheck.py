@@ -207,7 +207,7 @@ def main():
 
     # コマンド引数の処理
     parser = argparse.ArgumentParser(description='Qiitaのビュー数、いいね数、ストック数を取得します。',
-                                     epilog='環境変数QIITA_TOKENにトークンをセットしてから実行してください。')
+                                     epilog='環境変数QIITA_TOKENにアクセストークンをセットしてから実行してください。')
     parser.add_argument('-o', '--output',
                         default='text',
                         action='store',
