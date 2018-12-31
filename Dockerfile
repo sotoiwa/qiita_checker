@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY qiitacheck.py ./
 
 ENV IS_DOCKER TRUE
 ENTRYPOINT [ "python", "./qiitacheck.py" ]
