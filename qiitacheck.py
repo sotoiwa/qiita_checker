@@ -249,14 +249,14 @@ def main():
 
     # ファイル出力先のパスを決める
     if args.filename:
-        # フルパスが与えられた場合はファイル名だけにする
-        filename = os.path.basename(args.filename)
         # dockerで実行している場合はファイルの出力先を/tmpにする
         try:
             os.environ['IS_DOCKER']
+            # フルパスが与えられた場合はファイル名だけにする
+            filename = os.path.basename(args.filename)
             filepath = os.path.join('/tmp', filename)
         except KeyError:
-            filepath = filename
+            filepath = args.filename
     else:
         filepath = None
 
