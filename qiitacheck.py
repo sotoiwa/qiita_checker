@@ -188,13 +188,13 @@ def output_json(items, filepath):
 
     my_list = []
     for item in items:
-        my_dict = dict()
-        my_dict['Title'] = item['title']
-        my_dict['Views'] = item['page_views_count']
-        my_dict['Likes'] = item['likes_count']
-        my_dict['Stocks'] = item['stocks_count']
-        my_dict['Id'] = item['id']
-        my_list.append(my_dict)
+        my_list.append({
+            'Title': item['title'],
+            'Views': item['page_views_count'],
+            'Likes': item['likes_count'],
+            'Stocks': item['stocks_count'],
+            'Id': item['id']
+        })
 
     if filepath:
         with open(filepath, 'w') as json_file:
