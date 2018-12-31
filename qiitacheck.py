@@ -231,6 +231,18 @@ def main():
     # APIからデータを取得
     token = os.environ['QIITA_TOKEN']
     items = get_items(token)
+    # items = [
+    #     {'title': 'aaa',
+    #      'page_views_count': 11,
+    #      'likes_count': 22,
+    #      'stocks_count': 33,
+    #      'id': 'hogehoge'},
+    #     {'title': 'bbb',
+    #      'page_views_count': 44,
+    #      'likes_count': 55,
+    #      'stocks_count': 66,
+    #      'id': 'fugafuga'}
+    # ]
 
     # リストをソートする
     sort_items(items, args.sort_by, args.reverse)
