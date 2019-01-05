@@ -79,15 +79,56 @@ def get_items(token):
         logger.info('GET {}'.format(url))
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        users = json.loads(response.text)
-        for user in users:
-            logger.info({
-                'id': user['id'],
-                'name': user['name']
-                })
-        item['stocks_count'] = len(users)
+        stockers = json.loads(response.text)
+        item['stocks_count'] = len(stockers)
 
     return items
+
+
+def get_item_detail(token, item_id):
+    """指定の記事を取得し、いいねしたユーザーとストックしたユーザーを追加して返す。
+
+    :param token:
+    :param item_id:
+    :return: 記事
+    """
+
+    headers = {'Authorization': 'Bearer {}'.format(token)}
+
+    url = 'https://qiita.com/api/v2/items/{}'.format(item_id)
+    logger.info('GET {}'.format(url))
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    item = json.loads(response.text)
+
+    # ストック数、ストックしたユーザー
+    url = 'https://qiita.com/api/v2/items/{}/stockers'.format(item_id)
+    logger.info('GET {}'.format(url))
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    stockers = json.loads(response.text)
+    item['stocks_count'] = len(stockers)
+    item['stockers'] = []
+    for stocker in stockers:
+        item['stockers'].append({
+            'id': stocker['id'],
+            'name': stocker['name']
+        })
+
+    # いいねしたユーザー
+    url = 'https://qiita.com/api/v2/items/{}/likes'.format(item_id)
+    logger.info('GET {}'.format(url))
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    likers = json.loads(response.text)
+    item['likers'] = []
+    for liker in likers:
+        item['likers'].append({
+            'id': liker['user']['id'],
+            'name': liker['user']['name']
+        })
+
+    return item
 
 
 def sort_items(items, sort_by, reverse):
@@ -203,33 +244,15 @@ def output_json(items, filepath):
         print(json.dumps(my_list, ensure_ascii=False, indent=4))
 
 
-def main():
+def output_items(token, args):
+    """記事のリストを指定の形式で出力する
 
-    # コマンド引数の処理
-    parser = argparse.ArgumentParser(description='Qiitaのビュー数、いいね数、ストック数を取得します。',
-                                     epilog='環境変数QIITA_TOKENにアクセストークンをセットしてから実行してください。')
-    parser.add_argument('-o', '--output',
-                        default='text',
-                        action='store',
-                        type=str,
-                        choices=['text', 'csv', 'json'],
-                        help='出力形式を指定します')
-    parser.add_argument('-f', '--filename',
-                        action='store',
-                        type=str,
-                        help='出力先のファイル名を指定します')
-    parser.add_argument('--sort-by',
-                        action='store',
-                        type=str,
-                        choices=['views', 'likes', 'stocks'],
-                        help='結果を指定のキーでソートします')
-    parser.add_argument('--reverse',
-                        action='store_true',
-                        help='ソートを降順にします')
-    args = parser.parse_args()
+    :param token:
+    :param args:
+    :return:
+    """
 
     # APIからデータを取得
-    token = os.environ['QIITA_TOKEN']
     items = get_items(token)
     # items = [
     #     {'title': 'aaa',
@@ -267,6 +290,91 @@ def main():
         output_json(items, filepath)
     else:
         output_text(items, filepath)
+
+
+def output_item_detail(token, item_id):
+    """記事の詳細を出力する。
+
+    :param token:
+    :param item_id:
+    :return:
+    """
+
+    # APIからデータを取得
+    item = get_item_detail(token, item_id)
+
+    # サマリーの表示
+    print('Summary:')
+    table = prettytable.PrettyTable()
+    table.field_names = ['Title', 'Views', 'Likes', 'Stocks', 'Id']
+    table.align['Title'] = 'l'
+    table.align['Views'] = 'r'
+    table.align['Likes'] = 'r'
+    table.align['Stocks'] = 'r'
+    table.align['Id'] = 'l'
+    table.add_row([item['title'],
+                   item['page_views_count'],
+                   item['likes_count'],
+                   item['stocks_count'],
+                   item['id']])
+    print(table)
+
+    # いいねしたユーザーの表示
+    print('Likers:')
+    likers_table = prettytable.PrettyTable()
+    likers_table.field_names = ['Id', 'Name']
+    likers_table.align['Id'] = 'l'
+    likers_table.align['Name'] = 'l'
+    for liker in item['likers']:
+        likers_table.add_row([liker['id'], liker['name']])
+    print(likers_table)
+
+    # ストックしたしたユーザーの表示
+    print('Stockers:')
+    stockers_table = prettytable.PrettyTable()
+    stockers_table.field_names = ['Id', 'Name']
+    stockers_table.align['Id'] = 'l'
+    stockers_table.align['Name'] = 'l'
+    for stocker in item['stockers']:
+        stockers_table.add_row([stocker['id'], stocker['name']])
+    print(stockers_table)
+
+
+def main():
+
+    # コマンド引数の処理
+    parser = argparse.ArgumentParser(description='Qiitaのビュー数、いいね数、ストック数を取得します。',
+                                     epilog='環境変数QIITA_TOKENにアクセストークンをセットしてから実行してください。')
+    parser.add_argument('-o', '--output',
+                        default='text',
+                        action='store',
+                        type=str,
+                        choices=['text', 'csv', 'json'],
+                        help='出力形式を指定します')
+    parser.add_argument('-f', '--filename',
+                        action='store',
+                        type=str,
+                        help='出力先のファイル名を指定します')
+    parser.add_argument('--sort-by',
+                        action='store',
+                        type=str,
+                        choices=['views', 'likes', 'stocks'],
+                        help='結果を指定のキーでソートします')
+    parser.add_argument('--reverse',
+                        action='store_true',
+                        help='ソートを降順にします')
+    parser.add_argument('--item-id',
+                        action='store',
+                        type=str,
+                        help='記事の詳細を表示します')
+    args = parser.parse_args()
+
+    token = os.environ['QIITA_TOKEN']
+
+    if args.item_id:
+        output_item_detail(token, args.item_id)
+    else:
+        output_items(token, args)
 
 
 if __name__ == '__main__':

@@ -5,14 +5,14 @@
 Build and push image.
 
 ```shell
-docker build -t sotoiwa540/qiita-checker:1.0 .
-docker push sotoiwa540/qiita-checker:1.0
+docker build -t sotoiwa540/qiita-checker:1.1 .
+docker push sotoiwa540/qiita-checker:1.1
 ```
 
 Create alias.
 
 ```shell
-alias qiitacheck='docker run --rm -it -e QIITA_TOKEN=${QIITA_TOKEN} -v ${PWD}:/tmp sotoiwa540/qiita-checker:1.0'
+alias qiitacheck='docker run --rm -it -e QIITA_TOKEN=${QIITA_TOKEN} -v ${PWD}:/tmp sotoiwa540/qiita-checker:1.1'
 ```
 
 Export token.
