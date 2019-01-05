@@ -86,6 +86,12 @@ def get_items(token):
 
 
 def get_item_detail(token, item_id):
+    """指定の記事を取得し、いいねしたユーザーとストックしたユーザーを追加して返す。
+
+    :param token:
+    :param item_id:
+    :return: 記事
+    """
 
     headers = {'Authorization': 'Bearer {}'.format(token)}
 
@@ -239,6 +245,12 @@ def output_json(items, filepath):
 
 
 def output_items(token, args):
+    """記事のリストを指定の形式で出力する
+
+    :param token:
+    :param args:
+    :return:
+    """
 
     # APIからデータを取得
     items = get_items(token)
@@ -281,10 +293,15 @@ def output_items(token, args):
 
 
 def output_item_detail(token, item_id):
+    """記事の詳細を出力する。
+
+    :param token:
+    :param item_id:
+    :return:
+    """
 
     # APIからデータを取得
     item = get_item_detail(token, item_id)
-
 
     # サマリーの表示
     print('Summary:')
