@@ -56,7 +56,7 @@ def get_items(token):
     while True:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        items.extend(json.loads(response.text))
+        items.extend(response.json())
         logger.info('GET {}'.format(url))
         # 次のurlがあるかを確認する
         url = get_next_url(response)
@@ -72,14 +72,14 @@ def get_items(token):
         logger.info('GET {}'.format(url))
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        item['page_views_count'] = json.loads(response.text)['page_views_count']
+        item['page_views_count'] = response.json()['page_views_count']
 
         # ストック数
         url = 'https://qiita.com/api/v2/items/{}/stockers'.format(item['id'])
         logger.info('GET {}'.format(url))
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        stockers = json.loads(response.text)
+        stockers = response.json()
         item['stocks_count'] = len(stockers)
 
     return items
@@ -99,33 +99,33 @@ def get_item_detail(token, item_id):
     logger.info('GET {}'.format(url))
     response = requests.get(url, headers=headers)
     response.raise_for_status()
-    item = json.loads(response.text)
-
-    # ストック数、ストックしたユーザー
-    url = 'https://qiita.com/api/v2/items/{}/stockers'.format(item_id)
-    logger.info('GET {}'.format(url))
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    stockers = json.loads(response.text)
-    item['stocks_count'] = len(stockers)
-    item['stockers'] = []
-    for stocker in stockers:
-        item['stockers'].append({
-            'id': stocker['id'],
-            'name': stocker['name']
-        })
+    item = response.json()
 
     # いいねしたユーザー
     url = 'https://qiita.com/api/v2/items/{}/likes'.format(item_id)
     logger.info('GET {}'.format(url))
     response = requests.get(url, headers=headers)
     response.raise_for_status()
-    likers = json.loads(response.text)
+    likers = response.json()
     item['likers'] = []
     for liker in likers:
         item['likers'].append({
             'id': liker['user']['id'],
             'name': liker['user']['name']
+        })
+
+    # ストック数、ストックしたユーザー
+    url = 'https://qiita.com/api/v2/items/{}/stockers'.format(item_id)
+    logger.info('GET {}'.format(url))
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    stockers = response.json()
+    item['stocks_count'] = len(stockers)
+    item['stockers'] = []
+    for stocker in stockers:
+        item['stockers'].append({
+            'id': stocker['id'],
+            'name': stocker['name']
         })
 
     return item
