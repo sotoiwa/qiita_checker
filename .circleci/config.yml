@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+    - checkout
+    - run: docker build -t $DOCKER_USERNAME/$REPO:$TAG .
+    - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - run: docker push $DOCKER_USERNAME/$REPO:$TAG
+    environment:
+      REPO: qiita-checker
+      TAG: latest

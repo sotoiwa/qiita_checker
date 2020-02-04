@@ -5,8 +5,8 @@
 Build and push image.
 
 ```shell
-docker build -t sotoiwa540/qiita-checker:1.1 .
-docker push sotoiwa540/qiita-checker:1.1
+docker build -t sotoiwa540/qiita-checker:latest .
+docker push sotoiwa540/qiita-checker:latest
 ```
 
 Create alias.
