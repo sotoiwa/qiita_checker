@@ -3,10 +3,25 @@ jobs:
   build:
     machine: true
     steps:
-    - checkout
-    - run: docker build -t $DOCKER_USERNAME/$REPO:$TAG .
-    - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - run: docker push $DOCKER_USERNAME/$REPO:$TAG
+      - checkout
+      - run: docker build -t $DOCKER_USERNAME/$REPO:$TAG .
+      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - run: docker push $DOCKER_USERNAME/$REPO:$TAG
     environment:
       REPO: qiita-checker
       TAG: latest
+workflows:
+  version: 2
+  commit-workflow:
+    jobs:
+      - build
+  scheduled-workflow:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
